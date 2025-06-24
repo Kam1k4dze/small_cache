@@ -5,7 +5,6 @@
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/unordered_map.h>
-#include "json_parser.h"
 #include <tsl/sparse_map.h>
 #include <absl/hash/hash.h>
 #include <absl/container/flat_hash_map.h>
@@ -16,6 +15,38 @@
 #include <vector>
 #include <string>
 #include <glaze/glaze.hpp>
+
+namespace json {
+    using AttributeValue = std::variant<bool, double, std::string,
+        std::vector<glz::raw_json>,
+        std::optional<glz::raw_json> >;
+
+    struct Attribute {
+        std::string id{};
+        AttributeValue value{};
+    };
+
+    struct Item {
+        std::string id{};
+        std::vector<Attribute> attributes{};
+    };
+
+    struct Pagination {
+        int page{};
+        int pages{};
+    };
+
+    struct Result {
+        int count{};
+        Pagination pagination{};
+        std::vector<Item> data{};
+    };
+
+    struct Response {
+        Result result{};
+    };
+}
+
 
 namespace nb = nanobind;
 using namespace nb::literals;

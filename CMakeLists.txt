@@ -52,7 +52,7 @@ nanobind_add_module(
         NB_STATIC
 
         # Source code goes here
-        src/small_cache_ext.cpp
+        src/small_cache.cpp
 )
 
 include(FetchContent)
