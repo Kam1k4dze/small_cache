@@ -350,7 +350,7 @@ public:
         }
         resp.iterator_version = this->iterator_version;
         resp.iterator = i < keys.size() ? i : 0;
-        return glz::write_json(resp).value_or("error");
+        return glz::write_json(resp).value_or("error"); // TODO don't use json
     }
 
 
