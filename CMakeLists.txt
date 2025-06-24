@@ -78,6 +78,7 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
         GIT_TAG master
         GIT_SHALLOW TRUE
+        OVERRIDE_FIND_PACKAGE TRUE
         EXCLUDE_FROM_ALL
 )
 
@@ -95,8 +96,8 @@ FetchContent_Declare(
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_PROGRESS TRUE
         DOWNLOAD_NO_EXTRACT FALSE
-        OVERRIDE_FIND_PACKAGE TRUE # needed to find correct Boost
-        EXCLUDE_FROM_ALL # compile only what you need)
+        OVERRIDE_FIND_PACKAGE TRUE
+        EXCLUDE_FROM_ALL
 )
 Set(FETCHCONTENT_QUIET TRUE)
 
