@@ -33,7 +33,7 @@ wheel.py-api = "cp312"
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
 
-
+archs = ["auto64"]
 
 # Run pytest to ensure that the package was correctly built
 test-command = "pytest {project}/tests"
