@@ -26,7 +26,7 @@ if (NOT SKBUILD)
 endif ()
 
 # Try to import all Python components potentially needed by nanobind
-find_package(Python 3.8
+find_package(Python 3.11
         REQUIRED COMPONENTS Interpreter Development.Module
         OPTIONAL_COMPONENTS Development.SABIModule)
 
@@ -109,7 +109,7 @@ find_package(
 )
 
 target_link_libraries(
-        fastcache_ext
+        _small_cache_impl
         PRIVATE
         glaze::glaze
         tsl::sparse_map
