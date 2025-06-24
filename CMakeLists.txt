@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.15...3.26)
 
 project(small_cache LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CXX_STANDARD_REQUIRED On)
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+set(BUILD_SHARED_LIBS OFF)
+
 if (NOT SKBUILD)
     message(WARNING "\
   This CMake file is meant to be executed using 'scikit-build'. Running
