@@ -70,7 +70,8 @@ public:
         }
         attrMap.reserve(attributes.size());
         attrIdx.reserve(attributes.size());
-        for (const auto &[idx, attr]: std::views::enumerate(attributes)) {
+        for (size_t idx = 0; idx < attributes.size(); ++idx) {
+            const auto &attr = attributes[idx];
             attrIdx.emplace_back(attr);
             attrMap.emplace(attr, idx);
         }
