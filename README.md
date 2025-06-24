@@ -1,4 +1,4 @@
-nanobind_example
+small_cache
 ================
 
 |      CI              | status |
@@ -6,10 +6,10 @@ nanobind_example
 | pip builds           | [![Pip Action Status][actions-pip-badge]][actions-pip-link] |
 | wheels               | [![Wheel Action Status][actions-wheels-badge]][actions-wheels-link] |
 
-[actions-pip-link]:        https://github.com/wjakob/nanobind_example/actions?query=workflow%3APip
-[actions-pip-badge]:       https://github.com/wjakob/nanobind_example/workflows/Pip/badge.svg
-[actions-wheels-link]:     https://github.com/wjakob/nanobind_example/actions?query=workflow%3AWheels
-[actions-wheels-badge]:    https://github.com/wjakob/nanobind_example/workflows/Wheels/badge.svg
+[actions-pip-link]:        https://github.com/wjakob/small_cache/actions?query=workflow%3APip
+[actions-pip-badge]:       https://github.com/wjakob/small_cache/workflows/Pip/badge.svg
+[actions-wheels-link]:     https://github.com/wjakob/small_cache/actions?query=workflow%3AWheels
+[actions-wheels-badge]:    https://github.com/wjakob/small_cache/workflows/Wheels/badge.svg
 
 
 This repository contains a tiny project showing how to create C++ bindings
@@ -19,21 +19,21 @@ was derived from the corresponding _pybind11_ [example
 project](https://github.com/pybind/scikit_build_example/) developed by
 [@henryiii](https://github.com/henryiii).
 
-Furthermore, the [bazel](https://github.com/wjakob/nanobind_example/tree/bazel) branch contains an example
+Furthermore, the [bazel](https://github.com/wjakob/small_cache/tree/bazel) branch contains an example
 on how to build nanobind bindings extensions with Bazel using the [nanobind-bazel](https://github.com/nicholasjng/nanobind-bazel/) project.
 
 Installation
 ------------
 
 1. Clone this repository
-2. Run `pip install ./nanobind_example`
+2. Run `pip install ./small_cache`
 
 Afterwards, you should be able to issue the following commands (shown in an
 interactive Python session):
 
 ```pycon
->>> import nanobind_example
->>> nanobind_example.add(1, 2)
+>>> import small_cache
+>>> small_cache.add(1, 2)
 3
 ```
 

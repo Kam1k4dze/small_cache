@@ -1,4 +1,5 @@
-import nanobind_example as m
+import small_cache as m
 
-def test_add():
-    assert m.add(1, 2) == 3
+def test_create():
+    m.SmallCache(["test1","2"])
+
