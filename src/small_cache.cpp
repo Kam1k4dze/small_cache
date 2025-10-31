@@ -55,7 +55,7 @@ class SmallCache {
     using str = std::string;
     using strVec = std::vector<str>;
     using fwStr = boost::flyweight<str>;
-    using strVecUPtr = std::unique_ptr<std::vector<fwStr> >;
+    using strVecUPtr = std::unique_ptr<std::vector<fwStr>>;
 
     using AttributeValue = std::variant<std::monostate, double, bool, fwStr, strVecUPtr>;
     using pyAttrValue = std::variant<std::monostate, bool, double, str, strVec>;
@@ -109,7 +109,7 @@ public:
             return (attrs_flags[w] >> b) & 1u;
         }
 
-        [[nodiscard]] std::optional<std::reference_wrapper<AttributeValue> > getValue(size_t idx) noexcept {
+        [[nodiscard]] std::optional<std::reference_wrapper<AttributeValue>> getValue(size_t idx) noexcept {
             if (!hasIdx(idx))
                 return std::nullopt;
 
@@ -130,7 +130,7 @@ public:
             return value.size() > pos ? std::optional{std::ref(value[pos])} : std::nullopt; // just-in-case
         }
 
-        [[nodiscard]] std::optional<std::reference_wrapper<const AttributeValue> > getValue(size_t idx) const noexcept {
+        [[nodiscard]] std::optional<std::reference_wrapper<const AttributeValue>> getValue(size_t idx) const noexcept {
             if (auto ref = const_cast<MarkedItem *>(this)->getValue(idx))
                 return std::cref(ref->get());
             return std::nullopt;
@@ -142,7 +142,7 @@ public:
         item.attrs_flags.fill(0);
 
         // build a slot for each possible attr index
-        std::vector<std::optional<AttributeValue> > slots(attrMap.size());
+        std::vector<std::optional<AttributeValue>> slots(attrMap.size());
 
         // 1) collect into slots[] by index
         for (auto &[name, pyVal]: attrs) {
@@ -185,29 +185,29 @@ public:
 
     static AttributeValue convert_value(const json::AttributeValue &src) {
         return std::visit(overloaded{
-                              [](bool b) -> AttributeValue { return b; },
-                              [](double d) -> AttributeValue { return d; },
-                              [](const str &s) -> AttributeValue {
-                                  // if (s.empty()) return std::monostate{};
-                                  return fwStr{s};
-                              },
+                                  [](bool b) -> AttributeValue { return b; },
+                                  [](double d) -> AttributeValue { return d; },
+                                  [](const str &s) -> AttributeValue {
+                                      // if (s.empty()) return std::monostate{};
+                                      return fwStr{s};
+                                  },
 
-                              [](const std::vector<glz::raw_json> &json_vec) -> AttributeValue {
-                                  auto out = std::make_unique<std::vector<fwStr> >();
-                                  out->reserve(json_vec.size());
-                                  for (auto &r: json_vec)
-                                      if (!r.str.empty())
-                                          out->emplace_back(r.str);
-                                  // if (out->empty()) {
-                                  //     return std::monostate{};
-                                  // }
-                                  out->shrink_to_fit();
-                                  return out;
-                              },
-                              [](const std::optional<glz::raw_json> &o) -> AttributeValue {
-                                  // if (!o.has_value() || o->str.empty()) return std::monostate{};
-                                  return fwStr{o->str};
-                              },
+                                  [](const std::vector<glz::raw_json> &json_vec) -> AttributeValue {
+                                      auto out = std::make_unique<std::vector<fwStr>>();
+                                      out->reserve(json_vec.size());
+                                      for (auto &r: json_vec)
+                                          if (!r.str.empty())
+                                              out->emplace_back(r.str);
+                                      // if (out->empty()) {
+                                      //     return std::monostate{};
+                                      // }
+                                      out->shrink_to_fit();
+                                      return out;
+                                  },
+                                  [](const std::optional<glz::raw_json> &o) -> AttributeValue {
+                                      // if (!o.has_value() || o->str.empty()) return std::monostate{};
+                                      return fwStr{o->str};
+                                  },
 
                           },
                           src);
@@ -216,17 +216,17 @@ public:
 
     static pyAttrValue convert_valueJ(const json::AttributeValue &src) {
         return std::visit(overloaded{
-                              [](std::monostate b) -> pyAttrValue { return b; },
-                              [](bool b) -> pyAttrValue { return b; },
-                              [](double d) -> pyAttrValue { return d; },
-                              [](const str &s) -> pyAttrValue { return s; },
-                              [](const std::vector<glz::raw_json> &json_vec) -> pyAttrValue {
-                                  return json_vec | std::views::transform([](const glz::raw_json &j) -> str {
-                                             return j.str;
-                                         }) |
-                                         std::ranges::to<strVec>();
-                              },
-                              [](const std::optional<glz::raw_json> &o) -> pyAttrValue { return o ? o->str : ""; },
+                                  [](std::monostate b) -> pyAttrValue { return b; },
+                                  [](bool b) -> pyAttrValue { return b; },
+                                  [](double d) -> pyAttrValue { return d; },
+                                  [](const str &s) -> pyAttrValue { return s; },
+                                  [](const std::vector<glz::raw_json> &json_vec) -> pyAttrValue {
+                                      return json_vec | std::views::transform([](const glz::raw_json &j) -> str {
+                                                 return j.str;
+                                             }) |
+                                             std::ranges::to<strVec>();
+                                  },
+                                  [](const std::optional<glz::raw_json> &o) -> pyAttrValue { return o ? o->str : ""; },
 
                           },
                           src);
@@ -234,54 +234,54 @@ public:
 
     static pyAttrValue convert_value(const AttributeValue &src) {
         return std::visit(overloaded{
-                              [](std::monostate b) -> pyAttrValue { return b; },
-                              [](bool b) -> pyAttrValue { return b; },
-                              [](double d) -> pyAttrValue { return d; },
-                              [](const fwStr &s) -> pyAttrValue { return s; },
-                              [](const strVecUPtr &fw_vec) -> pyAttrValue {
-                                  return *fw_vec | std::views::transform([](const fwStr &s) -> str { return s; }) |
-                                         std::ranges::to<strVec>();
-                              },
+                                  [](std::monostate b) -> pyAttrValue { return b; },
+                                  [](bool b) -> pyAttrValue { return b; },
+                                  [](double d) -> pyAttrValue { return d; },
+                                  [](const fwStr &s) -> pyAttrValue { return s; },
+                                  [](const strVecUPtr &fw_vec) -> pyAttrValue {
+                                      return *fw_vec | std::views::transform([](const fwStr &s) -> str { return s; }) |
+                                             std::ranges::to<strVec>();
+                                  },
                           },
                           src);
     }
 
     static AttributeValue convert_value(const pyAttrValue &src) {
         return std::visit(overloaded{
-                              [](std::monostate b) -> AttributeValue { return b; },
-                              [](bool b) -> AttributeValue { return b; },
-                              [](double d) -> AttributeValue { return d; },
-                              [](const str &s) -> AttributeValue { return fwStr{s}; },
-                              [](const strVec &vec) -> AttributeValue {
-                                  auto out = std::make_unique<std::vector<fwStr> >();
-                                  out->reserve(vec.size());
-                                  for (auto &r: vec) {
-                                      out->emplace_back(r);
-                                  }
-                                  out->shrink_to_fit();
-                                  return out;
-                              },
+                                  [](std::monostate b) -> AttributeValue { return b; },
+                                  [](bool b) -> AttributeValue { return b; },
+                                  [](double d) -> AttributeValue { return d; },
+                                  [](const str &s) -> AttributeValue { return fwStr{s}; },
+                                  [](const strVec &vec) -> AttributeValue {
+                                      auto out = std::make_unique<std::vector<fwStr>>();
+                                      out->reserve(vec.size());
+                                      for (auto &r: vec) {
+                                          out->emplace_back(r);
+                                      }
+                                      out->shrink_to_fit();
+                                      return out;
+                                  },
                           },
                           src);
     }
 
     static str to_string(const pyAttrValue &src) {
         return std::visit(overloaded{
-                              [](std::monostate) -> str { return "null"; },
-                              [](bool b) -> str { return b ? "true" : "false"; },
-                              [](double d) -> str { return std::to_string(d); },
-                              [](const str &s) -> str { return s; },
+                                  [](std::monostate) -> str { return "null"; },
+                                  [](bool b) -> str { return b ? "true" : "false"; },
+                                  [](double d) -> str { return std::to_string(d); },
+                                  [](const str &s) -> str { return s; },
 
-                              [](const strVec &vecptr) -> str {
-                                  str out = "[";
+                                  [](const strVec &vecptr) -> str {
+                                      str out = "[";
 
-                                  for (auto &r: vecptr) {
-                                      out.append(r);
-                                      out.append(",");
-                                  }
-                                  out.append("]");
-                                  return out;
-                              },
+                                      for (auto &r: vecptr) {
+                                          out.append(r);
+                                          out.append(",");
+                                      }
+                                      out.append("]");
+                                      return out;
+                                  },
                           },
                           src);
     }
@@ -311,7 +311,7 @@ public:
                            return {};
                        return convert_value(*attr_value);
                    }) |
-                   std::ranges::to<std::vector<pyAttrValue> >();
+                   std::ranges::to<std::vector<pyAttrValue>>();
         }
         return {};
     }
@@ -320,11 +320,11 @@ public:
     struct getAllResponse {
         uint64_t iterator_version{};
         uint64_t iterator{};
-        std::vector<std::pair<str, std::vector<pyAttrValue> > > result{};
+        std::vector<std::pair<str, std::vector<pyAttrValue>>> result{};
     };
 
     str get_all(const strVec &attributes, uint64_t per_iteration = 10000, uint64_t iterator_version = 0,
-                           uint64_t iterator = 0) {
+                uint64_t iterator = 0) {
         if (transactionOpened)
             throw std::runtime_error("Can't get all when transaction is opened");
         if (iterator && iterator_version == 0) {
@@ -354,7 +354,7 @@ public:
     }
 
 
-    void begin_transaction(uint64_t estimated_number_of_items = 0) {
+    void begin_transaction(uint64_t estimated_number_of_items = 0, bool remove_old_items = true) {
         if (transactionOpened) {
             throw std::runtime_error("Transaction already open");
         }
@@ -364,6 +364,7 @@ public:
         }
         oldCacheSize = cache.size();
         transactionOpened = true;
+        transactionShouldRemoveOldItems = remove_old_items;
     }
 
     void end_transaction() {
@@ -375,11 +376,17 @@ public:
                 it.value().isNew = false;
                 ++it;
             } else {
-                it = cache.erase(it);
+                if (transactionShouldRemoveOldItems) {
+                    it = cache.erase(it);
+                }
+                else {
+                    ++it;
+                }
             }
         }
         increaseIteratorVersion();
         transactionOpened = false;
+        transactionShouldRemoveOldItems = true;
     }
 
     size_t load_page(const str &json_text) {
@@ -408,11 +415,12 @@ public:
     }
 
     tsl::sparse_map<str, MarkedItem> cache;
-    absl::flat_hash_map<str, uint8_t, absl::Hash<str> > attrMap;
+    absl::flat_hash_map<str, uint8_t, absl::Hash<str>> attrMap;
     strVec attrIdx;
     const uint8_t numberOfAttributes;
     size_t oldCacheSize = 0;
     bool transactionOpened = false;
+    bool transactionShouldRemoveOldItems = true;
     uint64_t iterator_version = 1; // for get_all()
 };
 
@@ -421,7 +429,9 @@ NB_MODULE(_small_cache_impl, m) {
     nb::class_<SmallCache> cache(m, "SmallCache");
     cache
             .def(nb::init<std::vector<std::string> >(), nb::arg("attribute_names"))
-            .def("begin_transaction", &SmallCache::begin_transaction, nb::arg("estimated_number_of_items") = 0)
+            .def("begin_transaction", &SmallCache::begin_transaction,
+                 nb::arg("estimated_number_of_items") = 0,
+                 nb::arg("remove_old_items") = true)
             .def("end_transaction", &SmallCache::end_transaction)
             .def("add", &SmallCache::add_item, nb::arg("item_id"), nb::arg("attributes"))
             .def("get", &SmallCache::get, nb::arg("id"), nb::arg("attributes"))
