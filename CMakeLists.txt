@@ -66,7 +66,7 @@ include(FetchContent)
 FetchContent_Declare(
         glaze
         GIT_REPOSITORY https://github.com/stephenberry/glaze.git
-        GIT_TAG main
+        GIT_TAG v6.1.0
         GIT_SHALLOW TRUE
 )
 
@@ -75,7 +75,7 @@ FetchContent_MakeAvailable(glaze)
 FetchContent_Declare(
         tsl_sparse_map
         GIT_REPOSITORY https://github.com/Tessil/sparse-map
-        GIT_TAG master
+        GIT_TAG v0.7.0
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(tsl_sparse_map)
@@ -83,7 +83,7 @@ FetchContent_MakeAvailable(tsl_sparse_map)
 FetchContent_Declare(
         absl
         GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-        GIT_TAG master
+        GIT_TAG 20250814.1
         GIT_SHALLOW TRUE
         OVERRIDE_FIND_PACKAGE TRUE
         EXCLUDE_FROM_ALL
@@ -92,14 +92,14 @@ FetchContent_Declare(
 find_package(
         absl
         REQUIRED
-        COMPONENTS flat_hash_map hash
+        COMPONENTS flat_hash_map flat_hash_set hash
 )
 
 Set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
         Boost
         URL https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.7z
-        GIT_TAG "boost-1.88.0"
+        GIT_TAG "boost-1.89.0"
         USES_TERMINAL_DOWNLOAD TRUE
         GIT_PROGRESS TRUE
         DOWNLOAD_NO_EXTRACT FALSE
