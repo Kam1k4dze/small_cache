@@ -441,7 +441,7 @@ NB_MODULE(_small_cache_impl, m) {
                  nb::arg("remove_old_items") = true)
             .def("end_transaction", &SmallCache::end_transaction)
             .def("add", &SmallCache::add_item, nb::arg("item_id"), nb::arg("attributes"))
-            .def("get", &SmallCache::get, nb::arg("id"), nb::arg("attributes"))
+            .def("get_one", &SmallCache::get_one, nb::arg("id"), nb::arg("attributes"))
             .def("get_many", &SmallCache::get_many, nb::arg("ids"), nb::arg("attributes"), nb::arg("per_iteration") = 10000,
                  nb::arg("iterator_version") = 0,
                  nb::arg("iterator") = 0)
