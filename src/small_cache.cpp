@@ -295,7 +295,7 @@ public:
         increaseIteratorVersion();
     }
 
-    std::vector<pyAttrValue> get(const str &id, const strVec &attributes) {
+    std::vector<pyAttrValue> get_one(const str &id, const strVec &attributes) {
         if (attributes.empty()) {
             return {};
         }
@@ -316,36 +316,44 @@ public:
         return {};
     }
 
-
-    struct getAllResponse {
+    struct getManyResponse {
         uint64_t iterator_version{};
         uint64_t iterator{};
         std::vector<std::pair<str, std::vector<pyAttrValue>>> result{};
     };
 
-    str get_all(const strVec &attributes, uint64_t per_iteration = 10000, uint64_t iterator_version = 0,
-                uint64_t iterator = 0) {
+    str get_many(const strVec &ids, const strVec &attributes, uint64_t per_iteration = 10000,
+                 uint64_t iterator_version = 0, uint64_t iterator = 0) {
         if (transactionOpened)
-            throw std::runtime_error("Can't get all when transaction is opened");
+            throw std::runtime_error("Can't get many when transaction is opened");
         if (iterator && iterator_version == 0) {
             throw std::runtime_error("Invalid iterator version");
         }
         if (iterator && iterator_version != this->iterator_version)
             throw std::runtime_error("Iterator already invalidated");
-        getAllResponse resp{};
-        std::vector<str> keys = cache | std::views::keys | std::ranges::to<std::vector>();
+        getManyResponse resp{};
+        std::vector<str> keys;
+        if (ids.empty()) {
+            keys = cache | std::views::keys | std::ranges::to<std::vector>();
+            std::ranges::sort(keys);
+        } else {
+            absl::flat_hash_set<str> set_of_ids(ids.begin(), ids.end());
+            keys = cache | std::views::keys |
+                   std::views::filter([&](const auto &key) { return set_of_ids.contains(key); }) |
+                   std::ranges::to<std::vector>();
+        }
         std::ranges::sort(keys);
 
-        uint64_t start = iterator;
-        uint64_t available = keys.size() > start ? keys.size() - start : 0;
-        uint64_t to_take = std::min<uint64_t>(available, per_iteration);
+        const uint64_t start = iterator;
+        const uint64_t available = keys.size() > start ? keys.size() - start : 0;
+        const uint64_t to_take = std::min<uint64_t>(available, per_iteration);
 
         resp.result.reserve(to_take);
 
         auto i = iterator;
         while (i < iterator + per_iteration && i < keys.size()) {
             const auto &key = keys[i];
-            resp.result.emplace_back(key, get(key, attributes));
+            resp.result.emplace_back(key, get_one(key, attributes));
             i++;
         }
         resp.iterator_version = this->iterator_version;
@@ -378,8 +386,7 @@ public:
             } else {
                 if (transactionShouldRemoveOldItems) {
                     it = cache.erase(it);
-                }
-                else {
+                } else {
                     ++it;
                 }
             }
@@ -435,7 +442,7 @@ NB_MODULE(_small_cache_impl, m) {
             .def("end_transaction", &SmallCache::end_transaction)
             .def("add", &SmallCache::add_item, nb::arg("item_id"), nb::arg("attributes"))
             .def("get", &SmallCache::get, nb::arg("id"), nb::arg("attributes"))
-            .def("get_all", &SmallCache::get_all, nb::arg("attributes"), nb::arg("per_iteration") = 10000,
+            .def("get_many", &SmallCache::get_many, nb::arg("ids"), nb::arg("attributes"), nb::arg("per_iteration") = 10000,
                  nb::arg("iterator_version") = 0,
                  nb::arg("iterator") = 0)
             .def("load_page", &SmallCache::load_page, nb::arg("json_text"));
