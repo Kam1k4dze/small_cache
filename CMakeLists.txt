@@ -92,7 +92,7 @@ FetchContent_Declare(
 find_package(
         absl
         REQUIRED
-        COMPONENTS flat_hash_map flat_hash_set hash
+        COMPONENTS flat_hash_map hash
 )
 
 Set(FETCHCONTENT_QUIET FALSE)
