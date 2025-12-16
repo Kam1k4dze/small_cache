@@ -2,7 +2,6 @@
 #include <nanobind/stl/variant.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
-#include <nanobind/stl/pair.h>
 #include <nanobind/stl/optional.h>
 #include <nanobind/stl/unordered_map.h>
 #include <tsl/sparse_map.h>
@@ -295,7 +294,6 @@ public:
         }
         auto &marked_attrs = cache[item_id];
         setMarkedItem(marked_attrs, attributes);
-        increaseIteratorVersion();
     }
 
     std::vector<pyAttrValue> get_one(const str &id, const strVec &attributes) {
@@ -328,42 +326,10 @@ public:
         return out;
     }
 
-    struct getAllResponse {
-        uint64_t iterator_version{};
-        uint64_t iterator{};
-        std::vector<std::pair<str, std::vector<pyAttrValue>>> result{};
-    };
-
-    str get_all(const strVec &attributes, uint64_t per_iteration = 10000, uint64_t iterator_version = 0,
-                uint64_t iterator = 0) {
-        if (transactionOpened)
-            throw std::runtime_error("Can't get all when transaction is opened");
-        if (iterator && iterator_version == 0) {
-            throw std::runtime_error("Invalid iterator version");
-        }
-        if (iterator && iterator_version != this->iterator_version)
-            throw std::runtime_error("Iterator already invalidated");
-        getAllResponse resp{};
+    std::vector<str> get_all_ids() {
         std::vector<str> keys = cache | std::views::keys | std::ranges::to<std::vector>();
-        std::ranges::sort(keys);
-
-        uint64_t start = iterator;
-        uint64_t available = keys.size() > start ? keys.size() - start : 0;
-        uint64_t to_take = std::min<uint64_t>(available, per_iteration);
-
-        resp.result.reserve(to_take);
-
-        auto i = iterator;
-        while (i < iterator + per_iteration && i < keys.size()) {
-            const auto &key = keys[i];
-            resp.result.emplace_back(key, get_one(key, attributes));
-            i++;
-        }
-        resp.iterator_version = this->iterator_version;
-        resp.iterator = i < keys.size() ? i : 0;
-        return glz::write_json(resp).value_or("error"); // TODO don't use json
+        return keys;
     }
-
 
     void begin_transaction(uint64_t estimated_number_of_items = 0, bool remove_old_items = true) {
         if (transactionOpened) {
@@ -371,7 +337,6 @@ public:
         }
         if (estimated_number_of_items != 0) {
             cache.reserve(estimated_number_of_items);
-            increaseIteratorVersion();
         }
         oldCacheSize = cache.size();
         transactionOpened = true;
@@ -394,7 +359,6 @@ public:
                 }
             }
         }
-        increaseIteratorVersion();
         transactionOpened = false;
         transactionShouldRemoveOldItems = true;
     }
@@ -415,13 +379,7 @@ public:
 
             setMarkedItem(marked_item, attrs);
         }
-        increaseIteratorVersion();
         return resp.result.pagination.pages;
-    }
-
-    void increaseIteratorVersion() {
-        iterator_version++;
-        iterator_version++;
     }
 
     tsl::sparse_map<str, MarkedItem> cache;
@@ -431,7 +389,6 @@ public:
     size_t oldCacheSize = 0;
     bool transactionOpened = false;
     bool transactionShouldRemoveOldItems = true;
-    uint64_t iterator_version = 1; // for get_all()
 };
 
 
@@ -446,9 +403,7 @@ NB_MODULE(_small_cache_impl, m) {
             .def("add", &SmallCache::add_item, nb::arg("item_id"), nb::arg("attributes"))
             .def("get_one", &SmallCache::get_one, nb::arg("id"), nb::arg("attributes"))
             .def("get_many", &SmallCache::get_many, nb::arg("ids"), nb::arg("attributes"))
-            .def("get_all", &SmallCache::get_all, nb::arg("attributes"), nb::arg("per_iteration") = 10000,
-                  nb::arg("iterator_version") = 0,
-                  nb::arg("iterator") = 0)
+            .def("get_all_ids", &SmallCache::get_all_ids)
             .def("load_page", &SmallCache::load_page, nb::arg("json_text"));
     // nb::class_<SmallCache::getAllResponse>(cache, "getAllResponse")
     //         .def(nb::init<>())
