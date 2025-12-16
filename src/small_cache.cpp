@@ -65,7 +65,7 @@ public:
         if (attributes.empty()) {
             throw std::runtime_error("No attributes provided");
         }
-        if (attributes.size() > 255) {
+        if (attributes.size() > MarkedItem::maxAttributes) {
             throw std::runtime_error("Too many attributes provided");
         }
         attrMap.reserve(attributes.size());
@@ -84,6 +84,9 @@ public:
     struct MarkedItem {
         bool isNew = true;
         std::array<uint32_t, 3> attrs_flags{}; // 96 bits total
+        static constexpr std::size_t maxAttributes =
+                std::tuple_size_v<decltype(attrs_flags)> *
+                std::numeric_limits<std::remove_reference_t<decltype(attrs_flags)>::value_type>::digits;
         std::vector<AttributeValue> value;
 
         [[nodiscard]] std::vector<size_t> getIdxs() const {
